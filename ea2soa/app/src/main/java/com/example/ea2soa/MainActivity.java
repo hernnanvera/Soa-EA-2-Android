@@ -1,25 +1,22 @@
 package com.example.ea2soa;
 
 
-import androidx.appcompat.app.AppCompatActivity;
-
 import android.app.Activity;
+import android.content.Context;
 import android.content.Intent;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.Bundle;
+import android.text.LoginFilter;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
-import android.widget.TextView;
 import android.widget.Toast;
 
 import com.example.ea2soa.dto.LoginRequest;
 import com.example.ea2soa.dto.LoginResponse;
-import com.example.ea2soa.dto.RegistroRequest;
-import com.example.ea2soa.dto.RegistroResponse;
 import com.example.ea2soa.services.SoaService;
-
-import org.w3c.dom.Text;
 
 import retrofit2.Call;
 import retrofit2.Callback;
@@ -82,6 +79,11 @@ public class MainActivity extends Activity {
     private View.OnClickListener botonesListeners = new View.OnClickListener() {
         public void onClick(View v) {
             Intent intent;
+
+            if (!isConnect()) {
+                Toast.makeText(MainActivity.this, "No hay conexion de internet.", Toast.LENGTH_LONG).show();
+                return;
+            }
 
             //Se determina que componente genero un evento
             switch (v.getId()) {
@@ -149,4 +151,16 @@ public class MainActivity extends Activity {
             }
         }
     };
+
+    private boolean isConnect(){
+        ConnectivityManager connectivityManager = (ConnectivityManager)getSystemService(Context.CONNECTIVITY_SERVICE);
+        NetworkInfo networkInfo = connectivityManager.getActiveNetworkInfo();
+
+        if(networkInfo != null && networkInfo.isConnected())
+        {
+            return true;
+        }else{
+            return false;
+        }
+    }
 }

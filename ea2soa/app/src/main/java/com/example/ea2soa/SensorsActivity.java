@@ -32,7 +32,6 @@ public class SensorsActivity extends AppCompatActivity implements SensorEventLis
         Log.d("onCreate",String.valueOf(this.getTaskId()));
 
         //accedemos al servicio de sensores
-
         mSensorManager = (SensorManager) getSystemService(SENSOR_SERVICE);
 
     }
