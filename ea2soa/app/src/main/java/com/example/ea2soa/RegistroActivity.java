@@ -2,6 +2,7 @@ package com.example.ea2soa;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -58,7 +59,7 @@ public class RegistroActivity extends AppCompatActivity {
         public void onClick(View v) {
 
             RegistroRequest request = new RegistroRequest();
-            request.setEnv("PROD");//PROD
+            request.setEnv("TEST");//PROD
             request.setName(txtNombre.getText().toString());
             request.setLastname(txtApellido.getText().toString());
             request.setDni(Long.parseLong(txtDni.getText().toString()));
@@ -86,6 +87,10 @@ public class RegistroActivity extends AppCompatActivity {
                         //textEnv.setText(response.body().getEnv());
                         //textToken.setText(response.body().getToken());
                         //textTokenRefresh.setText(response.body().gettoken_refresh());
+
+                        Intent intentSensors;
+                        intentSensors = new Intent(RegistroActivity.this, SensorsActivity.class);
+                        startActivity(intentSensors);
 
                         Log.i(TAG,response.body().getToken());
                     }else
