@@ -3,18 +3,35 @@ package com.example.ea2soa;
 
 import androidx.appcompat.app.AppCompatActivity;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.TextView;
 import android.widget.Toast;
+
+import com.example.ea2soa.dto.LoginRequest;
+import com.example.ea2soa.dto.LoginResponse;
+import com.example.ea2soa.dto.RegistroRequest;
+import com.example.ea2soa.dto.RegistroResponse;
+import com.example.ea2soa.services.SoaService;
 
 import org.w3c.dom.Text;
 
-public class MainActivity extends AppCompatActivity  {
+import retrofit2.Call;
+import retrofit2.Callback;
+import retrofit2.Response;
+import retrofit2.Retrofit;
+import retrofit2.converter.gson.GsonConverterFactory;
 
-    private EditText txtUsuario;
+public class MainActivity extends Activity {
+
+    private static String TAG = MainActivity.class.getName();
+
+    private EditText txtEmail;
     private EditText txtPassword;
     Button btnIniciarSesion;
     Button btnRegistrarUsuario;
@@ -24,7 +41,7 @@ public class MainActivity extends AppCompatActivity  {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        txtUsuario = (EditText) findViewById(R.id.txtUsuario);
+        txtEmail = (EditText) findViewById(R.id.txtUsuario);
         txtPassword = (EditText) findViewById(R.id.txtPassword);
         btnIniciarSesion = (Button) findViewById(R.id.btnIniciarSesion);
         btnRegistrarUsuario = (Button) findViewById(R.id.btnRegistrarse);
@@ -32,7 +49,7 @@ public class MainActivity extends AppCompatActivity  {
         btnIniciarSesion.setOnClickListener(botonesListeners);
         btnRegistrarUsuario.setOnClickListener(botonesListeners);
 
-        //Log.i( tag: "Ejecuto", msg: "Ejecuto onCreate");
+        Log.i( "Ejecuto", "Ejecuto onCreate");
 
     }
 
@@ -68,14 +85,63 @@ public class MainActivity extends AppCompatActivity  {
 
             //Se determina que componente genero un evento
             switch (v.getId()) {
-                //Si ocurrio un evento en Iniciar Sesionn
+                //Si ocurrio un evento en Iniciar Sesion
                 case R.id.btnRegistrarse:
 
                     //se le agrega un intent para lanzar la activity de registro
                     intent = new Intent( MainActivity.this, RegistroActivity.class);
 
                     startActivity(intent);
+                    break;
 
+                case R.id.btnIniciarSesion:
+
+                    LoginRequest request = new LoginRequest();
+                    request.setEmail(txtEmail.getText().toString());
+                    request.setPassword(txtPassword.getText().toString());
+
+                    Retrofit retrofit = new  Retrofit.Builder()
+                            .addConverterFactory(GsonConverterFactory.create())
+                            .baseUrl(getString(R.string.retrofit_server))
+                            .build();
+
+                    SoaService soaService = retrofit.create(SoaService.class);
+
+                    retrofit2.Call<LoginResponse> call = soaService.register(request);
+                    call.enqueue(new Callback<LoginResponse>(){
+                        @Override
+                        public void onResponse(Call<LoginResponse> call, Response<LoginResponse> response) {
+
+                            if(response.isSuccessful()){
+                                //TextView textEnv = findViewById(R.id.txtEnv);
+                                //TextView textToken = findViewById(R.id.txtToken);
+                                //TextView textTokenRefresh = findViewById(R.id.txtTokenRefresh);
+
+                                //textEnv.setText(response.body().getEnv());
+                                //textToken.setText(response.body().getToken());
+                                //textTokenRefresh.setText(response.body().gettoken_refresh());
+
+                                //se le agrega un intent para lanzar la activity de registro
+                                Intent intentSensors;
+                                intentSensors = new Intent(MainActivity.this, SensorsActivity.class);
+                                startActivity(intentSensors);
+
+                                Log.i(TAG,response.body().getToken());
+
+                            }else
+                            {
+                                Log.i(TAG,response.errorBody().toString());
+                                Toast.makeText(getApplicationContext(),  "Error en logueo de usuario", Toast.LENGTH_LONG).show();
+                            }
+
+                            Log.i(TAG,"Mensaje finalizado");
+                        }
+
+                        @Override
+                        public void onFailure(Call<LoginResponse> call, Throwable t) {
+                            Log.e(TAG,t.getMessage());
+                        }
+                    });
                     break;
 
                 default:
